@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SweetLetter</title>
+    <meta name="description" content="SweetLetter - A heartfelt message in a digital envelope">
+    <meta name="author" content="localhost">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Salsa&display=swap');
+
+        /* Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            font-family: "Salsa", cursive;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100dvh;
+        }
+
+        input,
+        button,
+        textarea,
+        select {
+            font: inherit;
+        }
+
+        p {
+            text-wrap: pretty;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            text-wrap: balance;
+        }
+
+        img,
+        video,
+        svg {
+            height: auto;
+            max-width: 100%;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+                transition: none;
+            }
+        }
+
+        /* Variables - Paleta vintage / carta antigua */
+        :root {
+            --color-background: #DCD0C1;
+            /* Fondo pergamino suave */
+            --color-primary: #A67B5B;
+            /* Sobre (marrón antiguo) */
+            --color-secondary: #8B6B4A;
+            /* Solapa superior (marrón más oscuro) */
+            --color-accent: #C9A88C;
+            /* Borde izquierdo (marrón claro) */
+            --color-sheet: #F7EDDF;
+            /* Papel de la carta (crema vintage) */
+            --color-text: #3E2723;
+            /* Texto en marrón muy oscuro (tinta) */
+
+            --silver: #AAAAAA;
+            --white: #FFFFFF;
+        }
+
+        /* Letter Styles */
+        body {
+            background-color: var(--color-background);
+            width: 100dvw;
+            height: 100dvh;
+            display: flex;
+            gap: 5vh;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            background-image: radial-gradient(circle at 20% 30%, #e8ddd0 0%, #d0c4b6 100%);
+        }
+
+        .letter {
+            margin-bottom: 0vh;
+            width: 20vw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            animation: letter-lift 3s ease-in-out infinite;
+            filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.3));
+        }
+
+        .envelope {
+            position: relative;
+            display: flex;
+            cursor: pointer;
+            justify-content: center;
+            width: 80vw;
+            aspect-ratio: 5/3;
+            background-color: var(--color-primary);
+            border-radius: 4px 4px 0 0;
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.2);
+            /* Aseguramos opacidad total */
+            opacity: 1;
+        }
+
+        .envelope::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            border-left: 80vw solid var(--color-accent);
+            border-top: calc(calc(80vw * 3) / 5) solid transparent;
+            pointer-events: none;
+            z-index: 4;
+            /* Sin transparencia */
+            opacity: 1;
+        }
+
+        .envelope::before {
+            content: '';
+            pointer-events: none;
+            position: absolute;
+            bottom: 0;
+            border-right: 80vw solid var(--color-text);
+            border-top: calc(calc(80vw * 3) / 5) solid transparent;
+            transform: perspective(400px);
+            z-index: 3;
+            opacity: 1;
+        }
+
+        .envelopeHeader {
+            bottom: 0;
+            left: 0;
+            padding: 5%;
+            list-style: none;
+            position: absolute;
+            color: var(--color-text);
+            z-index: 5;
+            text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        .envelopeHeader li {
+            display: flex;
+            font-size: calc(1.4vw + 1vh);
+            text-transform: capitalize;
+            gap: .4rem;
+        }
+
+        .envelopeHeader li p:last-child {
+            color: var(--color-secondary);
+            font-weight: bold;
+        }
+
+        .letterSheet {
+            display: flex;
+            justify-content: center;
+            flex-direction: column;
+            cursor: pointer;
+            transition: 1s ease-in-out;
+            width: 90%;
+            padding: 5%;
+            gap: 3%;
+            height: 100%;
+            background-color: var(--color-sheet);
+            background-image: repeating-linear-gradient(0deg, rgba(200, 180, 150, 0.1) 0px, rgba(200, 180, 150, 0.1) 2px, transparent 2px, transparent 6px);
+            border: 1px solid #d4c5b2;
+            border-radius: 2px;
+            box-shadow: inset 0 0 20px rgba(120, 80, 50, 0.1);
+            /* Aseguramos que el contenido no se vea hasta que suba */
+            z-index: 1;
+            overflow: hidden;
+            /* para que la imagen no se desborde */
+        }
+
+        .letterSheet__title {
+            width: 100%;
+            color: var(--color-secondary);
+            font-size: calc(1.5vw + 1.5vh);
+            font-weight: bold;
+            letter-spacing: 1px;
+            text-shadow: 1px 1px 0 rgba(255, 215, 180, 0.5);
+            text-align: center;
+            margin-bottom: 2%;
+        }
+
+        .letterSheet__image {
+            width: 100%;
+            height: auto;
+            border-radius: 4px;
+            display: block;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .cover {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            fill: var(--color-secondary);
+            z-index: 5;
+            transform-origin: top;
+            filter: drop-shadow(0 -2px 5px rgba(0, 0, 0, 0.2));
+            /* Opacidad total */
+            opacity: 1;
+        }
+
+        .shadowLetter {
+            display: flex;
+            justify-content: center;
+            position: relative;
+            width: 50%;
+            margin-top: 5%;
+            margin-bottom: 3%;
+            opacity: .3;
+            height: 1%;
+            background-color: var(--silver);
+            animation: shadow-lift 3s ease-in-out infinite;
+            border-radius: 100% 100% 100% 100%;
+            filter: blur(2px);
+        }
+
+        .open {
+            fill: var(--color-primary);
+            animation: open-letter 2s ease-in-out forwards;
+        }
+
+        .zoomIn {
+            animation: zoom-sheet-up 2s ease forwards;
+            text-rendering: optimizeLegibility;
+        }
+
+        .clickHere {
+            position: absolute;
+            pointer-events: none;
+            top: 30%;
+            left: 50%;
+            width: 30vw;
+            max-width: 300px;
+            opacity: .3;
+            aspect-ratio: 1/1;
+            border-radius: 50%;
+            animation: tap 4s ease infinite forwards;
+            z-index: 10;
+        }
+
+        .clickHere path {
+            stroke: var(--silver);
+        }
+
+        /* Animations */
+        @keyframes zoom-sheet-up {
+            0% {
+                transform: translate(0%, -10%)
+            }
+
+            30% {
+                transform: translate(0%, -100%)
+            }
+
+            100% {
+                transform: translate(0%, -30%);
+                z-index: 10;
+            }
+        }
+
+        @keyframes tap {
+
+            0%,
+            20%,
+            40%,
+            100% {
+                opacity: 0;
+            }
+
+            10%,
+            30% {
+                opacity: .5;
+            }
+        }
+
+        @keyframes open-letter {
+            0% {
+                transform: rotateX(0deg);
+                fill: var(--color-secondary);
+            }
+
+            49% {
+                fill: var(--color-secondary);
+            }
+
+            50% {
+                z-index: 2;
+                fill: var(--color-primary);
+            }
+
+            100% {
+                transform: translateY(1px) rotateX(180deg);
+                fill: var(--color-primary);
+                z-index: 2;
+            }
+        }
+
+        @keyframes letter-lift {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            60% {
+                transform: translateY(-2%);
+            }
+        }
+
+        @keyframes shadow-lift {
+
+            0%,
+            100% {
+                transform: scale(1.1);
+            }
+
+            60% {
+                transform: scale(1);
+            }
+        }
+
+        @media (orientation: landscape) {
+            .letter {
+                width: 50vw;
+            }
+
+            .envelope {
+                transform: scale(.7) translateY(20%);
+            }
+
+            .letterSheet__title {
+                font-size: calc(2vw + 3vh);
+            }
+
+            .letterSheet__image {
+                width: 80%;
+                margin: 0 auto;
+            }
+
+            .shadowLetter {
+                margin-top: 0%;
+                width: 40vw;
+                min-height: 3%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="letter" id="letter">
+        <div class="envelope" onclick="openLetter()">
+            <ul class="envelopeHeader">
+                <li>
+                    <p class="envelopeHeader__from">from:</p>
+                    <p class="envelopeHeader__from" id="from">John Doe</p>
+                </li>
+                <li>
+                    <p class="envelopeHeader__to">to:</p>
+                    <p class="envelopeHeader__to" id="to">Jane Smith</p>
+                </li>
+            </ul>
+            <svg class="cover" id="cover" viewBox="0 0 500 300" xmlns="http://www.w3.org/2000/svg">
+                <path d="M 0 0 L 500 0 L 275 150 Q 250 175 225 150 L 0 0 Z" />
+            </svg>
+            <div class="letterSheet" id="letterSheet">
+                <h2 class="letterSheet__title" id="title">Para ti</h2>
+                <img class="letterSheet__image" src="mono.png" alt="mono">
+            </div>
+        </div>
+        <svg class="clickHere" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+                d="M7 7L5.5 5.5M15 7L16.5 5.5M5.5 16.5L7 15M11 5L11 3M5 11L3 11M17.1603 16.9887L21.0519 15.4659C21.4758 15.3001 21.4756 14.7003 21.0517 14.5346L11.6992 10.8799C11.2933 10.7213 10.8929 11.1217 11.0515 11.5276L14.7062 20.8801C14.8719 21.304 15.4717 21.3042 15.6375 20.8803L17.1603 16.9887Z"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+    </div>
+    <div class="shadowLetter" id="shadowLetter"></div>
+
+    <script>
+        let cover = document.getElementById("cover");
+        let clickHere = document.getElementsByClassName("clickHere")[0];
+        let letterSheet = document.getElementById("letterSheet");
+        let letter = document.getElementById("letter");
+        let shadowLetter = document.getElementById("shadowLetter");
+
+        function openLetter() {
+            cover.classList.add("open");
+            setTimeout(() => {
+                letterSheet.style.zIndex = "2";
+                clickHere.style.display = "none";
+                letter.style.animationIterationCount = "1";
+                shadowLetter.style.animationIterationCount = "1";
+                letterSheet.classList.add("zoomIn");
+            }, 1500);
+        }
+    </script>
+</body>
+
+</html>
